@@ -16,15 +16,14 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return SplashScreenView(
       navigateRoute: LoginScreen(),
-      duration: 3000,
-      imageSize: 130,
-      imageSrc: "assets/logo_itcelaya.png",
-      text: "Bienvenido",
+      duration: 3500,
+      imageSize: 450,
+      imageSrc: "assets/icons/flutter_icono_transparente.png",
       textType: TextType.ScaleAnimatedText,
       textStyle: const TextStyle(
         fontSize: 30.0,
       ),
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.white,
     );
     //Theme.of(context).backgroundColor
   }

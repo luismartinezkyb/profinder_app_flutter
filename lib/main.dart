@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:profinder_app_flutter/constants.dart';
 import 'package:profinder_app_flutter/screens/splash_screen.dart';
 
 void main() {
@@ -12,9 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Profinder App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: kPrimaryColor,
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: const SplashScreen(),
     );
