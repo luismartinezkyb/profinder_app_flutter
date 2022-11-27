@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:profinder_app_flutter/constants.dart';
+import 'package:profinder_app_flutter/screens/authentication_screen.dart';
 
 import 'design/background.dart';
 
@@ -19,11 +20,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final kwidth = MediaQuery.of(context).size.width;
     final kheight = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Background(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Container(
+                height: 60,
+              ),
               Text('Welcome to',
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
@@ -35,12 +40,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 'assets/icons/flutter_icono_sinletras.png',
                 width: kwidth * .6,
               ),
+              SizedBox(
+                height: 20,
+              ),
               Text(
                 'The best place to learn between students',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   textStyle: TextStyle(
                     fontSize: 20,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(29),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size(kwidth * .8, 20),
+                      primary: kPrimaryColor,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signin');
+                  },
+                  child: Text(
+                    'Log In',
+                    style: GoogleFonts.poppins(
+                      textStyle: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -52,14 +84,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: Size(kwidth * .8, 20),
-                      primary: kPrimaryColor,
+                      primary: kPrimaryLightColor,
                       padding:
                           EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signup');
+                  },
                   child: Text(
-                    'Sign In',
+                    'Sign Up',
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
+                        color: Colors.black87,
                         fontSize: 20,
                       ),
                     ),
@@ -76,8 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Container(
                       height: 1,
-                      width: kwidth * .22,
-                      color: Colors.grey,
+                      width: kwidth * .24,
+                      color: kPrimaryLightColor,
                     ),
                     SizedBox(
                       width: 10,
@@ -85,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Or Login with',
                       style: GoogleFonts.poppins(
-                          textStyle: TextStyle(color: Colors.black54)),
+                          textStyle: TextStyle(color: kPrimaryColor)),
                     ),
                     SizedBox(
                       width: 10,
@@ -93,36 +128,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       height: 1,
                       width: kwidth * .22,
-                      color: Colors.grey,
+                      color: kPrimaryLightColor,
                     )
                   ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: kwidth * .2),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        print('facebook');
-                      },
-                      icon: Image.asset('assets/icons/facebook_logo.png'),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        print('github');
-                      },
-                      icon: Image.asset('assets/icons/github_logo.png'),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        print('google');
-                      },
-                      icon: Image.asset('assets/icons/google_logo.png'),
-                    )
-                  ],
-                ),
-              )
+              SizedBox(
+                height: 20,
+              ),
+              AuthenticationButtons()
             ],
           ),
         ),

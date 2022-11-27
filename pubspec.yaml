@@ -31,6 +31,7 @@ dependencies:
     sdk: flutter
   splash_screen_view: ^3.0.0
   google_fonts: ^3.0.1
+  fluttertoast: ^8.1.1
 
   
 

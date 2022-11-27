@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:profinder_app_flutter/constants.dart';
+import 'package:profinder_app_flutter/screens/login_screen.dart';
+import 'package:profinder_app_flutter/screens/signIn_screen.dart';
+import 'package:profinder_app_flutter/screens/signUp_screen.dart';
 import 'package:profinder_app_flutter/screens/splash_screen.dart';
 
 void main() {
@@ -20,6 +23,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       home: const SplashScreen(),
+      routes: {
+        '/login': (BuildContext context) => LoginScreen(),
+        '/signin': (BuildContext context) => SignInScreen(),
+        '/signup': (BuildContext context) => SignUpScreen()
+      },
     );
   }
 }
