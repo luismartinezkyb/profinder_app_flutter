@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="app_name">profinder_app_flutter</string>
+    <string name="facebook_app_id">531286078869927</string>
+    <string name="fb_login_protocol_scheme">fb531286078869927</string>
+    <string name="facebook_client_token">4f1db6c59e8dbf9b848bb383c71fd113</string>
+
+
+</resources>

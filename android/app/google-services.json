@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "203082591833",
+    "project_id": "profinder-app",
+    "storage_bucket": "profinder-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203082591833:android:d896156553b5e896150b48",
+        "android_client_info": {
+          "package_name": "com.example.profinder_app_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "203082591833-rfqjf3dcr2os6r9afgomhqlmqv0af5ht.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsUGLsp7joqeI0QCB0d9Vy0s2HQbTWAzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "203082591833-rfqjf3dcr2os6r9afgomhqlmqv0af5ht.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

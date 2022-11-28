@@ -3,9 +3,12 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:profinder_app_flutter/provider/theme_provider.dart';
+import 'package:provider/provider.dart';
 
-import '../constants.dart';
-import 'authentication_screen.dart';
+import '../firebase/email_authentication.dart';
+import '../settings/style_settings.dart';
+import 'design/switch_mode.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -21,17 +24,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _controllertxtPassword = TextEditingController();
 
   TextEditingController _controllertxtNumber = TextEditingController();
-  TextEditingController _controllertxtUserType = TextEditingController();
 
+  EmailAuthentication? _emailAuth;
   final formKey = GlobalKey<FormState>();
 
   bool checkVisibility = true;
   int _dropdownValue = 2;
 
   @override
+  void initState() {
+    super.initState();
+    _emailAuth = EmailAuthentication();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final kwidth = MediaQuery.of(context).size.width;
     final kheight = MediaQuery.of(context).size.height;
+
+    ThemeProvider tema = Provider.of<ThemeProvider>(context);
+    var kPrimaryColor = Theme.of(context).primaryColorDark;
+    var kPrimaryLightColor = Theme.of(context).primaryColorLight;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -111,7 +124,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           icon: Icon(
                             Icons.person,
-                            color: kPrimaryColor,
                           ),
                           hintText: "Full Name *",
                           border: InputBorder.none,
@@ -141,7 +153,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           icon: Icon(
                             Icons.group,
-                            color: kPrimaryColor,
                           ),
                           hintText: "Username *",
                           border: InputBorder.none,
@@ -171,7 +182,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           icon: Icon(
                             Icons.email,
-                            color: kPrimaryColor,
                           ),
                           hintText: "Email *",
                           border: InputBorder.none,
@@ -200,7 +210,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           icon: Icon(
                             Icons.lock,
-                            color: kPrimaryColor,
                           ),
                           hintText: "Password *",
                           border: InputBorder.none,
@@ -212,9 +221,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 });
                               },
                               child: checkVisibility
-                                  ? Icon(Icons.visibility, color: kPrimaryColor)
-                                  : Icon(Icons.visibility_off,
-                                      color: kPrimaryColor)),
+                                  ? Icon(Icons.visibility)
+                                  : Icon(
+                                      Icons.visibility_off,
+                                    )),
                         ),
                       ),
                     ),
@@ -232,7 +242,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           icon: Icon(
                             Icons.phone,
-                            color: kPrimaryColor,
                           ),
                           hintText: "Phone Number",
                           border: InputBorder.none,
@@ -249,10 +258,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(29)),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.security,
-                            color: kPrimaryColor,
-                          ),
+                          Icon(Icons.security),
                           SizedBox(
                             width: 15,
                           ),
@@ -265,8 +271,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               //alignment: Alignment.center,
                               value: _dropdownValue,
                               hint: Text('Choose a Role'),
-                              icon: Icon(Icons.arrow_drop_down,
-                                  color: kPrimaryColor),
+                              icon: Icon(
+                                Icons.arrow_drop_down,
+                              ),
                               items: [
                                 DropdownMenuItem(
                                   child: Text('Teacher'),
@@ -279,7 +286,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ],
                               onChanged: (int? value) {
                                 setState(() => {_dropdownValue = value!});
-                                print(value);
+
                                 //value = _dropdownValue;
                               },
                             ),
@@ -312,11 +319,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           final isValidForm = formKey.currentState!.validate();
                           //print('valid form value: $isValidForm');
                           if (isValidForm) {
-                            print(
-                                'redirigeme al login with the notification con verificacion de correo');
+                            _emailAuth!
+                                .createUserWithEmailAndPassword(
+                              name: _controllertxtName.text,
+                              username: _controllertxtUsername.text,
+                              email: _controllertxtEmail.text,
+                              password: _controllertxtPassword.text,
+                              number: _controllertxtNumber.text,
+                              role: _dropdownValue,
+                            )
+                                .then((value) {
+                              print('valor del email auth $value');
+                              if (value) {
+                                Fluttertoast.showToast(
+                                    gravity: ToastGravity.BOTTOM,
+                                    backgroundColor: Colors.green,
+                                    msg:
+                                        "We've send you an email, please verify your email account to log in");
+                                Navigator.pushNamed(context, '/signin');
+                              } else {
+                                Fluttertoast.showToast(
+                                    gravity: ToastGravity.BOTTOM,
+                                    backgroundColor: Colors.red,
+                                    msg:
+                                        'an error occurred while trying to sign up, verify the console');
+                              }
+                            });
                           } else {
                             Fluttertoast.showToast(
-                                msg: 'There is some wrong information');
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: Colors.red,
+                                msg:
+                                    'The information is not valid. Please try again!');
                           }
                         },
                         child: Text(
@@ -356,6 +390,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     )
                   ],
                 ),
+                Container(
+                  height: 30,
+                )
               ],
             ),
             Positioned(
@@ -370,6 +407,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 },
               ),
             ),
+            Positioned(top: 55, right: 20, child: ColorWidgetRow(tema)),
           ],
         ),
       ),

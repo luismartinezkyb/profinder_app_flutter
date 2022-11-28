@@ -1,9 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:profinder_app_flutter/constants.dart';
+import 'package:profinder_app_flutter/firebase/email_authentication.dart';
+
 import 'package:profinder_app_flutter/screens/authentication_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/theme_provider.dart';
+import '../settings/style_settings.dart';
+import 'design/switch_mode.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -15,13 +23,21 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _controllertxtEmail = TextEditingController();
   TextEditingController _controllertxtPassword = TextEditingController();
+  var loading = false;
+  final formKey = GlobalKey<FormState>();
 
   bool checkVisibility = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final EmailAuthentication _emailAuth = EmailAuthentication();
 
   @override
   Widget build(BuildContext context) {
     final kwidth = MediaQuery.of(context).size.width;
     final kheight = MediaQuery.of(context).size.height;
+    ThemeProvider tema = Provider.of<ThemeProvider>(context);
+    var kPrimaryColor = Theme.of(context).primaryColorDark;
+    var kPrimaryLightColor = Theme.of(context).primaryColorLight;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
@@ -76,54 +92,77 @@ class _SignInScreenState extends State<SignInScreen> {
                 SizedBox(
                   height: 50,
                 ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
-                  width: kwidth * .8,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  decoration: BoxDecoration(
-                      color: kPrimaryLightColor,
-                      borderRadius: BorderRadius.circular(29)),
-                  child: TextField(
-                    controller: _controllertxtEmail,
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.person,
-                        color: kPrimaryColor,
-                      ),
-                      hintText: "Enter Your Email",
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
-                  width: kwidth * .8,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  decoration: BoxDecoration(
-                      color: kPrimaryLightColor,
-                      borderRadius: BorderRadius.circular(29)),
-                  child: TextField(
-                    obscureText: checkVisibility,
-                    controller: _controllertxtPassword,
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.lock,
-                        color: kPrimaryColor,
-                      ),
-                      hintText: "Enter Your Password",
-                      border: InputBorder.none,
-                      suffixIcon: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              print('the visibility is $checkVisibility');
-                              checkVisibility = !checkVisibility;
-                            });
+                Form(
+                  //autovalidateMode: AutovalidateMode.onUserInteraction,
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        width: kwidth * .8,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        decoration: BoxDecoration(
+                            color: kPrimaryLightColor,
+                            borderRadius: BorderRadius.circular(29)),
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
                           },
-                          child: checkVisibility
-                              ? Icon(Icons.visibility, color: kPrimaryColor)
-                              : Icon(Icons.visibility_off,
-                                  color: kPrimaryColor)),
-                    ),
+                          controller: _controllertxtEmail,
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.person,
+                            ),
+                            hintText: "Enter Your Email",
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        width: kwidth * .8,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        decoration: BoxDecoration(
+                            color: kPrimaryLightColor,
+                            borderRadius: BorderRadius.circular(29)),
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a valid password';
+                            }
+                            return null;
+                          },
+                          obscureText: checkVisibility,
+                          controller: _controllertxtPassword,
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.lock,
+                            ),
+                            hintText: "Enter Your Password",
+                            border: InputBorder.none,
+                            suffixIcon: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    print('the visibility is $checkVisibility');
+                                    checkVisibility = !checkVisibility;
+                                  });
+                                },
+                                child: checkVisibility
+                                    ? Icon(
+                                        Icons.visibility,
+                                      )
+                                    : Icon(
+                                        Icons.visibility_off,
+                                      )),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -137,7 +176,37 @@ class _SignInScreenState extends State<SignInScreen> {
                         primary: kPrimaryColor,
                         padding:
                             EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
-                    onPressed: () {
+                    onPressed: () async {
+                      final isValidForm = formKey.currentState!.validate();
+                      //print('valid form value: $isValidForm');
+                      if (isValidForm) {
+                        print('email: ' + _controllertxtEmail.text);
+                        print('password: ' + _controllertxtPassword.text);
+                        var ban = await _emailAuth.signInWithEmailAndPassword(
+                            email: _controllertxtEmail.text,
+                            password: _controllertxtPassword.text);
+                        if (ban == true) {
+                          if (_auth.currentUser!.emailVerified) {
+                            Navigator.pushNamed(context, '/dashboard');
+                          } else
+                            Fluttertoast.showToast(
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: Colors.red,
+                                msg:
+                                    'Please verify your email account to login.');
+                        } else {
+                          Fluttertoast.showToast(
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red,
+                              msg: 'Invalid Credentials. Please try again.');
+                        }
+                      } else {
+                        Fluttertoast.showToast(
+                            gravity: ToastGravity.BOTTOM,
+                            backgroundColor: Colors.red,
+                            msg:
+                                'The information is not valid. Please try again!');
+                      }
                       print(
                           'redirigeme al dashboard con verificacion de correo');
                     },
@@ -213,7 +282,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 AuthenticationButtons()
               ],
-            )
+            ),
+            Positioned(top: 65, right: 20, child: ColorWidgetRow(tema)),
           ],
         ),
       ),
