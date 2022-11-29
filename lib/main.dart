@@ -5,10 +5,15 @@ import 'package:profinder_app_flutter/provider/google_provider.dart';
 import 'package:profinder_app_flutter/provider/loading_provider.dart';
 import 'package:profinder_app_flutter/provider/theme_provider.dart';
 import 'package:profinder_app_flutter/screens/login_screen.dart';
+import 'package:profinder_app_flutter/screens/onboarding_screen.dart';
 import 'package:profinder_app_flutter/screens/signIn_screen.dart';
 import 'package:profinder_app_flutter/screens/signUp_screen.dart';
 import 'package:profinder_app_flutter/screens/splash_screen.dart';
 import 'package:profinder_app_flutter/screens/student/dashboard_screen.dart';
+import 'package:profinder_app_flutter/screens/student/messages_student_screen.dart';
+import 'package:profinder_app_flutter/screens/student/profile_student_screen.dart';
+import 'package:profinder_app_flutter/screens/student/search_student_screen.dart';
+import 'package:profinder_app_flutter/screens/student/settings_student_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,7 +57,12 @@ class MyApp extends StatelessWidget {
         '/login': (BuildContext context) => LoginScreen(),
         '/signin': (BuildContext context) => SignInScreen(),
         '/signup': (BuildContext context) => SignUpScreen(),
-        '/dashboard': (BuildContext context) => DashBoardScreen()
+        '/dashboard': (BuildContext context) => DashBoardScreen(),
+        '/onboardingPage': (BuildContext context) => OnboardingScreen(),
+        '/messagesPage': (BuildContext context) => MessagesScreen(),
+        '/searchPage': (BuildContext context) => SearchStudentScreen(),
+        '/settingsPage': (BuildContext context) => SettingsStudentScreen(),
+        '/profilePage': (BuildContext context) => ProfileStudentScreen(),
       },
     );
   }

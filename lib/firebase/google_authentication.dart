@@ -44,7 +44,7 @@ class GoogleAuthentication {
 
       Fluttertoast.showToast(
           gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.yellow[200],
+          backgroundColor: Colors.green,
           msg: "Now you're logged in with Google");
 
       return true;

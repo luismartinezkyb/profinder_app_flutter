@@ -13,6 +13,8 @@ class Background extends StatelessWidget {
   Widget build(BuildContext context) {
     final kwidth = MediaQuery.of(context).size.width;
     final kheight = MediaQuery.of(context).size.height;
+    var kPrimaryColor = Theme.of(context).primaryColorDark;
+    var kPrimaryLightColor = Theme.of(context).primaryColorLight;
     return Container(
       height: kheight,
       width: double.infinity,

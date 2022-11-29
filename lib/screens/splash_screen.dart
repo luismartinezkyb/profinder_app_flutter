@@ -4,7 +4,10 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:profinder_app_flutter/screens/login_screen.dart';
 import 'package:profinder_app_flutter/screens/student/dashboard_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
+
+import '../provider/theme_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -57,11 +60,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeProvider tema = Provider.of<ThemeProvider>(context);
+
     return SplashScreenView(
       navigateRoute: newNavigate(),
       duration: 3500,
       imageSize: 450,
-      imageSrc: "assets/icons/flutter_icono_transparente.png",
+      imageSrc: tema.getImage2Theme(),
       textType: TextType.ScaleAnimatedText,
       textStyle: const TextStyle(
         fontSize: 30.0,
