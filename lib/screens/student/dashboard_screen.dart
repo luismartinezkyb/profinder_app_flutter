@@ -164,7 +164,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               setState(() {
                 index = val;
               });
-              print('$index');
+              //print('$index');
             },
           ),
           body: screens[index]),

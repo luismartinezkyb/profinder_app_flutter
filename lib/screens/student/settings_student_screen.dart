@@ -20,6 +20,7 @@ class _SettingsStudentScreenState extends State<SettingsStudentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).backgroundColor,
         leading: null,
         actions: [
@@ -29,6 +30,13 @@ class _SettingsStudentScreenState extends State<SettingsStudentScreen> {
           ),
         ],
       ),
+      body: Center(
+          child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/onboardingPage');
+        },
+        child: Text('Onboarding'),
+      )),
     );
   }
 }

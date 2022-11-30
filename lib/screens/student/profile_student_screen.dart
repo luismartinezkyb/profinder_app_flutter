@@ -20,6 +20,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).backgroundColor,
         leading: null,
         actions: [

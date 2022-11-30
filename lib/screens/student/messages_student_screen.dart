@@ -19,6 +19,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     ThemeProvider tema = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Inbox'),
         backgroundColor: Theme.of(context).backgroundColor,
         leading: null,

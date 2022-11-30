@@ -136,6 +136,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     email = userFirebase.email!;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Bienvenido ${nameUser}'),
         backgroundColor: Theme.of(context).backgroundColor,
       ),
@@ -146,16 +147,15 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
               height: 30,
             ),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                userPhoto.length != 0
-                    ? '$userPhoto'
-                    : 'http://www.gravatar.com/avatar/?d=mp',
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ),
+                borderRadius: BorderRadius.circular(16),
+                child: CachedNetworkImage(
+                  imageUrl: userPhoto.length != 0
+                      ? '$userPhoto'
+                      : 'http://www.gravatar.com/avatar/?d=mp',
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                )),
 
             // CircleAvatar(
             //   backgroundImage: NetworkImage(userPhoto.length != 0

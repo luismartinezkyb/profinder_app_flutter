@@ -396,7 +396,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
             ),
             Positioned(
-              top: 40,
+              top: 50,
               left: 10,
               child: IconButton(
                 iconSize: 40,
