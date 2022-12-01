@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:profinder_app_flutter/constants.dart';
+import 'package:profinder_app_flutter/provider/classes_provider.dart';
 import 'package:profinder_app_flutter/provider/google_provider.dart';
+import 'package:profinder_app_flutter/provider/index_screen_provider.dart';
 import 'package:profinder_app_flutter/provider/loading_provider.dart';
 import 'package:profinder_app_flutter/provider/theme_provider.dart';
 import 'package:profinder_app_flutter/screens/login_screen.dart';
@@ -33,7 +35,11 @@ Future<void> main() async {
               create: (BuildContext context) =>
                   LoadingProvider(loading: false)),
           ChangeNotifierProvider(
-              create: (BuildContext context) => GoogleSignInProvider())
+              create: (BuildContext context) => ChangingIndexScreen(index: 2)),
+          ChangeNotifierProvider(
+              create: (BuildContext context) => GoogleSignInProvider()),
+          ChangeNotifierProvider(
+              create: (BuildContext context) => ClassProvider())
         ],
         builder: (context, _) {
           return MyApp();

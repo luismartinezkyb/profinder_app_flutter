@@ -186,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 :
                 //This is the container with the text
                 Positioned(
-                    top: MediaQuery.of(context).size.height / 3,
+                    top: MediaQuery.of(context).size.height / 3.5,
                     child: Container(
                       alignment: Alignment.center,
                       width: kwidth,

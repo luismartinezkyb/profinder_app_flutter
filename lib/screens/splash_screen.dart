@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
           );
         }
         if (snapshot.hasData) {
-          print('user logged with: ${snapshot.data}');
+          //print('user logged with: ${snapshot.data}');
           //FirebaseAuth.instance.currentUser!.providerData[0].providerId;
 
           if (snapshot.data!.providerData[0].providerId == 'password') {
