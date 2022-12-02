@@ -12,6 +12,7 @@ import 'package:profinder_app_flutter/screens/signIn_screen.dart';
 import 'package:profinder_app_flutter/screens/signUp_screen.dart';
 import 'package:profinder_app_flutter/screens/splash_screen.dart';
 import 'package:profinder_app_flutter/screens/student/dashboard_screen.dart';
+import 'package:profinder_app_flutter/screens/student/edit_profile_screen.dart';
 import 'package:profinder_app_flutter/screens/student/messages_student_screen.dart';
 import 'package:profinder_app_flutter/screens/student/profile_student_screen.dart';
 import 'package:profinder_app_flutter/screens/student/search_student_screen.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
         '/searchPage': (BuildContext context) => SearchStudentScreen(),
         '/settingsPage': (BuildContext context) => SettingsStudentScreen(),
         '/profilePage': (BuildContext context) => ProfileStudentScreen(),
+        '/editProfilePage': (BuildContext context) => EditProfileScreen(),
       },
     );
   }

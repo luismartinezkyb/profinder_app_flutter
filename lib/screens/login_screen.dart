@@ -57,7 +57,9 @@ class _LoginScreenState extends State<LoginScreen> {
           'email': userData['email'],
           'number': '',
           'role': 2,
-          'picture': userData['picture']['data']['url']
+          'picture': userData['picture']['data']['url'],
+          'description': '',
+          'level': '9.2',
         };
         await docUser.set(json);
         //asdasdasdasd

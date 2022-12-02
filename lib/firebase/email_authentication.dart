@@ -37,6 +37,8 @@ class EmailAuthentication {
         'number': number != null ? number : '',
         'role': role,
         'picture': picture != null ? picture : '',
+        'description': '',
+        'level': '7.4',
       };
       await docUser.set(json);
       //fin creating the user

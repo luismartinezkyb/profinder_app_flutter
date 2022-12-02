@@ -67,7 +67,9 @@ class _SignInScreenState extends State<SignInScreen> {
           'email': userData['email'],
           'number': '',
           'role': 2,
-          'picture': userData['picture']['data']['url']
+          'picture': userData['picture']['data']['url'],
+          'description': '',
+          'level': '9.3',
         };
         await docUser.set(json);
         //asdasdasdasd

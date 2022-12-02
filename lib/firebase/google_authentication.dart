@@ -38,6 +38,8 @@ class GoogleAuthentication {
         'number': '',
         'role': 2,
         'picture': newUser.user!.photoURL,
+        'description': '',
+        'level': '8.8',
       };
       await docUser.set(json);
       //fin creating the user

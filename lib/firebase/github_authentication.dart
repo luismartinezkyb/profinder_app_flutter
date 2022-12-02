@@ -52,6 +52,8 @@ class GithubAuthentication {
           'number': '',
           'role': 2,
           'picture': value.user!.photoURL,
+          'description': '',
+          'level': '8.4',
         };
         await docUser.set(json);
       });

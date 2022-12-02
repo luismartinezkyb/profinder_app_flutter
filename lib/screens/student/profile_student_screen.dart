@@ -1,15 +1,23 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
+import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+
+import '../../api/firebase_api.dart';
 import '../../models/user_model.dart';
 import '../../provider/theme_provider.dart';
 import '../design/switch_mode.dart';
@@ -24,35 +32,71 @@ class ProfileStudentScreen extends StatefulWidget {
 class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
   // DatabaseHelperPhoto? _database;
   // DatabaseHelperUser? _database2;
-  final userFirebase = FirebaseAuth.instance.currentUser!;
-
   File? _image;
+  UploadTask? uploadTask;
+  String? imageString = '';
+  final userFirebase = FirebaseAuth.instance.currentUser!;
+  String loggedWith = '';
 
-  Future getImage(ImageSource source) async {
-    try {
-      final image = await ImagePicker().pickImage(source: source);
-      if (image == null) return;
-      final imageTemporary = File(image.path);
+  //File? _image;
+  // Future<File> _fileFromImageUrl() async {
+  //   final response = await http.get(Uri.parse('https://example.com/xyz.jpg'));
 
-      //final imagePermament = await saveFilePerma(image.path);
+  //   final documentDirectory = await getApplicationDocumentsDirectory();
 
-      // setState(() {
-      //   this._image = imageTemporary;
-      //   //print('EL PATH DE LA IMAGEN TEMPRAL ES: ${imageTemporary.path}');
-      //   photo pic = photo(0, imageTemporary.path);
-      //   _database!.updatePhoto(pic).then((value) => {
-      //         ScaffoldMessenger.of(context).showSnackBar(
-      //           SnackBar(
-      //             content: Text('Imagen Actualizada Exitosamente!'),
-      //           ),
-      //         ),
-      //       });
-      //   //imagePermament
-      // });
-      //print(_image);
-    } on PlatformException catch (e) {
-      print('Failed to pick the image : $e');
+  //   final file = File(join(documentDirectory.path, 'imagetest.png'));
+
+  //   file.writeAsBytesSync(response.bodyBytes);
+
+  //   return file;
+  // }
+
+  Future selectImage(ImageSource source) async {
+    final image = await ImagePicker().pickImage(source: source);
+    if (image == null) return;
+
+    final imageTemporary = File(image.path);
+    setState(() {
+      this._image = imageTemporary;
+    });
+    print('EL PATH DE LA IMAGEN TEMPRAL ES: ${imageTemporary.path}');
+    print('new basename ${path.basename(imageTemporary.path)}');
+    uploadFile();
+  }
+
+  Future uploadFile() async {
+    if (_image == null) return;
+
+    final fileName = path.basename(_image!.path);
+    final destination = 'images/$fileName';
+
+    uploadTask = FirebaseApi.uploadFile(destination, _image!);
+    if (uploadTask == null) {
+      Fluttertoast.showToast(
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          msg: 'Failed to upload image, ERROR');
+      return;
     }
+
+    final snapshot = await uploadTask!.whenComplete(() {
+      Fluttertoast.showToast(
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          msg: 'Picture upload successfully');
+    });
+    final urlDownload = await snapshot.ref.getDownloadURL();
+    print('URL DATA $urlDownload');
+
+    //UPDATE URL PICTURE FIRESTORE
+    final docUser =
+        FirebaseFirestore.instance.collection('users').doc(userFirebase.email);
+    docUser.update({'picture': urlDownload});
+
+    ///END UPDATE URL PICTURE FIRESTORE
+    setState(() {
+      imageString = urlDownload;
+    });
   }
 
   @override
@@ -66,22 +110,24 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
     _sb = SimpleDialog(
       title: Text(
         'Elige una nueva Foto',
-        style: TextStyle(color: Theme.of(context).backgroundColor),
+        style: GoogleFonts.poppins(
+            textStyle: TextStyle(color: Theme.of(context).primaryColor)),
       ),
       children: [
         SimpleDialogOption(
           child: ListTile(
             title: Text(
               'Elegir una imagen',
-              style: TextStyle(color: Theme.of(context).backgroundColor),
+              style: GoogleFonts.poppins(
+                  textStyle: TextStyle(color: Theme.of(context).primaryColor)),
             ),
             trailing: Icon(
               Icons.folder,
-              color: Theme.of(context).backgroundColor,
+              color: Theme.of(context).primaryColor,
             ),
           ),
           onPressed: () {
-            getImage(ImageSource.gallery);
+            selectImage(ImageSource.gallery);
             Navigator.pop(context);
           },
         ),
@@ -89,15 +135,16 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
           child: ListTile(
             title: Text(
               'Tomar Foto',
-              style: TextStyle(color: Theme.of(context).backgroundColor),
+              style: GoogleFonts.poppins(
+                  textStyle: TextStyle(color: Theme.of(context).primaryColor)),
             ),
             trailing: Icon(
               Icons.camera_alt,
-              color: Theme.of(context).backgroundColor,
+              color: Theme.of(context).primaryColor,
             ),
           ),
           onPressed: () {
-            getImage(ImageSource.camera);
+            selectImage(ImageSource.camera);
             Navigator.pop(context);
           },
         ),
@@ -114,13 +161,47 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
   late String nombreUsuario = "";
   late String correoUsuario = "";
   late String telefonoUsuario = "";
-  late String gitUsuario = "";
+  late String descripcionUsuario = "";
+  late int role;
+  late String levelUsuario = "";
 
   bool verifyTheme = false;
   @override
   Widget build(BuildContext context) {
-    ThemeProvider tema = Provider.of<ThemeProvider>(context, listen: false);
-    final urlAsset = 'assets/ProfilePicture.png';
+    ThemeProvider tema = Provider.of<ThemeProvider>(context);
+    var kPrimaryColor = Theme.of(context).primaryColorDark;
+    var kPrimaryLightColor = Theme.of(context).primaryColorLight;
+    var kTextColor = Theme.of(context).primaryColorDark;
+    var kwidth = MediaQuery.of(context).size.width;
+    var kheight = MediaQuery.of(context).size.height;
+    loggedWith = userFirebase.providerData[0].providerId;
+    var checkimage = '';
+
+    switch (loggedWith) {
+      case 'facebook.com':
+        print('Es con Facebook el user');
+        checkimage = 'assets/icons/facebook_logo.png';
+
+        break;
+      case 'password':
+        checkimage = 'assets/icons/email_logo.png';
+        print('Es con Email y password el user');
+        break;
+      case 'google.com':
+        checkimage = 'assets/icons/google_logo.png';
+        print('Es con Google el user');
+        break;
+      case 'github.com':
+        checkimage = 'assets/icons/github_logo.png';
+        print('Es con Github el user');
+        break;
+      default:
+        checkimage = 'assets/icono/logo_itcelaya.png';
+
+        break;
+    }
+
+    //final urlAsset = 'assets/ProfilePicture.png';
     //PARA GUARDAR LA PRIMERA IMAGEN
     // photo pic = photo(0, urlAsset);
     // _database!.save(pic);
@@ -138,6 +219,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
       }
     }
 
+//FUTURO 2 lee la informacion del usuario y regresa toda la info
     final futuro2 = FutureBuilder<UserModel?>(
       future: readUser(),
       builder: (context, snapshot) {
@@ -145,52 +227,100 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
           nombreUsuario = snapshot.data!.name;
           correoUsuario = snapshot.data!.email;
           telefonoUsuario = snapshot.data!.number;
-          gitUsuario = snapshot.data!.username;
-          //AGREGAR DESCRIPTION
-          //gitUsuario = snapshot.data!.username;
-          // print(
-          //     'Name user: $nombreUsuario, Email $correoUsuario, Phone: $telefonoUsuario');
+
+          role = snapshot.data!.role;
+          descripcionUsuario = snapshot.data!.description;
+          snapshot.data!.level == null
+              ? levelUsuario = "0"
+              : levelUsuario = snapshot.data!.level;
+
           return Column(
             children: [
               SizedBox(height: 24),
               buildName(nombreUsuario, correoUsuario),
               SizedBox(height: 38),
-              buildInfo(telefonoUsuario, gitUsuario),
+              Container(
+                padding: EdgeInsets.only(left: kwidth / 4.3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Signed in with',
+                      style: GoogleFonts.poppins(
+                          textStyle: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Image.asset(
+                      checkimage,
+                      width: 40,
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(height: 38),
+              buildInfo('Description', descripcionUsuario),
+              SizedBox(height: 38),
+              //buildInfo('User type', role == 1 ? 'Professor' : 'Student'),
+              buildInfoRow('User type', role == 1 ? 'Professor' : 'Student',
+                  'Level', levelUsuario),
+              SizedBox(height: 38),
+              buildInfo(
+                  'Phone Number',
+                  telefonoUsuario.length == 0
+                      ? 'insert your phone number'
+                      : telefonoUsuario),
               SizedBox(height: 48),
             ],
           );
         }
         if (snapshot.hasError) {
-          nombreUsuario = "null";
-          correoUsuario = "null";
-          telefonoUsuario = "null";
-          gitUsuario = "null";
-          return CircularProgressIndicator();
+          nombreUsuario = "empty";
+          correoUsuario = "empty";
+          telefonoUsuario = "empty";
+
+          role = 0;
+          descripcionUsuario = "empty";
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
-        return CircularProgressIndicator();
+        return Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
-//Change there
+//RETURNS THE PHOTO
     final futuro = FutureBuilder<UserModel?>(
       future: readUser(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          print('Checamos que es lo que tiene ${snapshot.data!.image}');
+          //print('Checamos que es lo que tiene ${snapshot.data!.image}');
 
-          imageUsuario = snapshot.data!.image == ''
+          imageUsuario = snapshot.data!.image != ''
               ? snapshot.data!.image
-              : 'http://www.gravatar.com/avatar/?d=mp';
+              : imageString!.length != 0
+                  ? imageString!
+                  : 'http://www.gravatar.com/avatar/?d=mp';
 
           return GestureDetector(
             onTap: () async {
               dialogMethod();
             },
-            child: Image.file(
-              File(imageUsuario),
+            child: CachedNetworkImage(
+              imageUrl: imageUsuario,
               fit: BoxFit.cover,
-              width: 200,
-              height: 200,
+              width: 150,
+              height: 150,
             ),
+            // child: Image.file(
+            //   File(imageUsuario),
+            //   fit: BoxFit.cover,
+            //   width: 200,
+            //   height: 200,
+            // ),
           );
         }
         if (snapshot.hasError) {
@@ -206,11 +336,11 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             ),
           );
         }
-        return CircularProgressIndicator();
+        return Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
-
-//
 
     return Scaffold(
       appBar: AppBar(
@@ -234,18 +364,63 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             height: 10,
           ),
           ProfileWidget(
-            imagePath: Hero(
-              tag: 'profile_picture',
-              child: ClipOval(
-                child: Material(color: Colors.transparent, child: futuro),
-              ),
+            imagePath: ClipOval(
+              child: Material(color: Colors.transparent, child: futuro),
             ),
             onClicked: () async {
-              dialogMethod();
+              userFirebase.providerData[0].providerId == 'password'
+                  ? dialogMethod()
+                  : null;
             },
           ),
           futuro2,
-          Center(child: buildEditButton()),
+          //button edit profile
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(29),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    minimumSize: Size(kwidth * .8, 20),
+                    primary: kPrimaryColor,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
+                onPressed: () async {
+                  if (userFirebase.providerData[0].providerId == 'password') {
+                    final data = await Navigator.pushNamed(
+                        context, '/editProfilePage',
+                        arguments: {
+                          "imageUser": imageUsuario,
+                          "userName": nombreUsuario,
+                          "emailUser": correoUsuario,
+                          "phoneUser": telefonoUsuario,
+                          "description": descripcionUsuario,
+                        });
+                    print(data);
+                    setState(() {
+                      build(context);
+                    });
+                  } else {
+                    Fluttertoast.showToast(
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.red,
+                        msg:
+                            'You cannot edit your profile while you are logged in with ${userFirebase.providerData[0].providerId}');
+                  }
+                },
+                child: Text(
+                  'Edit your profile',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 40,
+          )
         ],
       ),
     );
@@ -256,66 +431,117 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
         children: [
           Text(
             user,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            style: GoogleFonts.poppins(
+                textStyle:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
           ),
           SizedBox(height: 10),
           Text(
             email,
-            style: TextStyle(color: Colors.grey),
+            style:
+                GoogleFonts.poppins(textStyle: TextStyle(color: Colors.grey)),
           ),
         ],
       );
 
-  Widget buildInfo(String numero, String github) => Container(
+  Widget buildInfo(String title, String subtitle) => Container(
         padding: EdgeInsets.symmetric(horizontal: 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Phone',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              '$title',
+              style: GoogleFonts.poppins(
+                  textStyle:
+                      TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             ),
             SizedBox(
               height: 10,
             ),
-            Text(numero),
+            Text(subtitle,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                    textStyle: TextStyle(color: Colors.grey))),
+          ],
+        ),
+      );
+  Widget buildInfoRow(
+          String title, String subtitle, String title1, String subtitle2) =>
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 48),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '$title',
+                    style: GoogleFonts.poppins(
+                        textStyle: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold)),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(subtitle,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                          textStyle: TextStyle(color: Colors.grey))),
+                ],
+              ),
+            ),
             SizedBox(
-              height: 40,
+              width: 10,
             ),
-            Text(
-              'GitHub Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '$title1',
+                    style: GoogleFonts.poppins(
+                        textStyle: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold)),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(subtitle2,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                          textStyle: TextStyle(color: Colors.grey))),
+                ],
+              ),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(github)
           ],
         ),
       );
 
-  Widget buildEditButton() => ElevatedButton(
-        style: ElevatedButton.styleFrom(
-            primary: Theme.of(context).backgroundColor,
-            shape: StadiumBorder(),
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            shadowColor: Colors.black),
-        onPressed: () async {
-          final data = await Navigator.pushNamed(context, '/editProfilePage',
-              arguments: {
-                "imageUser": imageUsuario,
-                "userName": nombreUsuario,
-                "emailUser": correoUsuario,
-                "phoneUser": telefonoUsuario,
-                "githubUser": gitUsuario,
-              });
-          print(data);
-          setState(() {
-            build(context);
-          });
-        },
-        child: Text('Edit your profile'),
-      );
+  // ElevatedButton(
+  //       style: ElevatedButton.styleFrom(
+  //           primary: Theme.of(context).backgroundColor,
+  //           shape: StadiumBorder(),
+  //           padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+  //           shadowColor: Colors.black),
+  //       onPressed: () async {
+  //         final data = await Navigator.pushNamed(context, '/editProfilePage',
+  //             arguments: {
+  //               "imageUser": imageUsuario,
+  //               "userName": nombreUsuario,
+  //               "emailUser": correoUsuario,
+  //               "phoneUser": telefonoUsuario,
+  //               "githubUser": gitUsuario,
+  //             });
+  //         print(data);
+  //         setState(() {
+  //           build(context);
+  //         });
+  //       },
+  //       child: Text('Edit your profile'),
+  //     );
+
 }
 
 //armamos el widget del perfil completo

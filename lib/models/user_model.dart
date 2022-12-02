@@ -24,7 +24,7 @@ class UserModel {
         username: json['username'],
         level: json['level'],
         role: json['role'],
-        image: json['image'],
+        image: json['picture'],
         email: json['email'],
         description: json['description'],
         number: json['number'],
