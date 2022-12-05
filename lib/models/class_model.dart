@@ -13,19 +13,21 @@ class ClassModel {
   List? tags;
   String? picture_tutor;
   String? level;
+  DocumentReference? tutor;
   //final DocumentReference tutor;
 
-  ClassModel({
-    this.name,
-    this.description,
-    this.date,
-    this.duration,
-    this.modality,
-    this.tags,
-    this.picture_tutor,
-    this.level,
-    //required this.tutor,
-  });
+  ClassModel(
+      {this.name,
+      this.description,
+      this.date,
+      this.duration,
+      this.modality,
+      this.tags,
+      this.picture_tutor,
+      this.level,
+      this.tutor
+      //required this.tutor,
+      });
 
   static ClassModel fromJson(Map<String, dynamic> json) => ClassModel(
         name: json['name'],
@@ -36,6 +38,6 @@ class ClassModel {
         tags: json['tags'],
         picture_tutor: json['picture_tutor'],
         level: json['level'],
-        //tutor: json['tutor'],
+        tutor: json['tutor'],
       );
 }

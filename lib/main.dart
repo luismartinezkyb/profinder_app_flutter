@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:profinder_app_flutter/provider/classes_provider.dart';
 import 'package:profinder_app_flutter/provider/google_provider.dart';
 import 'package:profinder_app_flutter/provider/index_screen_provider.dart';
 import 'package:profinder_app_flutter/provider/loading_provider.dart';
+import 'package:profinder_app_flutter/provider/suscriptions_provider.dart';
 import 'package:profinder_app_flutter/provider/theme_provider.dart';
 import 'package:profinder_app_flutter/screens/login_screen.dart';
 
@@ -19,6 +21,7 @@ import 'package:profinder_app_flutter/screens/student/messages_student_screen.da
 import 'package:profinder_app_flutter/screens/student/profile_student_screen.dart';
 import 'package:profinder_app_flutter/screens/student/search_student_screen.dart';
 import 'package:profinder_app_flutter/screens/student/settings_student_screen.dart';
+import 'package:profinder_app_flutter/screens/student/show_class_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,14 +43,29 @@ Future<void> main() async {
     sound: true,
   );
   print('User granted permission: ${settings.authorizationStatus}');
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     print('Got a message whilst in the foreground!');
     print('Message data: ${message.data}');
 
     if (message.notification != null) {
+      // final docUser =
+      //     FirebaseFirestore.instance.collection('notifications').doc();
+      // final json = {
+      //   'idNotification': docUser.id,
+      //   'data': message.data,
+      //   // 'from': message.from,
+      //   // 'notification': message.notification,
+      //   // 'ttl': message.ttl,
+      //   // 'content': message.contentAvailable,
+      //   // 'time': message.sentTime,
+      //   // 'type': message.messageType,
+      //   // 'category': message.category,
+      // };
+      // await docUser.set(json);
       print('Message also contained a notification: ${message.notification}');
     }
   });
+
   return runApp(
     MultiProvider(
         providers: [
@@ -62,7 +80,9 @@ Future<void> main() async {
           ChangeNotifierProvider(
               create: (BuildContext context) => GoogleSignInProvider()),
           ChangeNotifierProvider(
-              create: (BuildContext context) => ClassProvider())
+              create: (BuildContext context) => ClassProvider()),
+          ChangeNotifierProvider(
+              create: (BuildContext context) => SuscriptionsProvider())
         ],
         builder: (context, _) {
           return MyApp();
@@ -93,6 +113,7 @@ class MyApp extends StatelessWidget {
         '/settingsPage': (BuildContext context) => SettingsStudentScreen(),
         '/profilePage': (BuildContext context) => ProfileStudentScreen(),
         '/editProfilePage': (BuildContext context) => EditProfileScreen(),
+        '/showClassInfo': (BuildContext context) => ShowClassInfoScreen(),
       },
     );
   }
