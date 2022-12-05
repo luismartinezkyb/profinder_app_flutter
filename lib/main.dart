@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:profinder_app_flutter/constants.dart';
 import 'package:profinder_app_flutter/provider/classes_provider.dart';
@@ -7,6 +8,7 @@ import 'package:profinder_app_flutter/provider/index_screen_provider.dart';
 import 'package:profinder_app_flutter/provider/loading_provider.dart';
 import 'package:profinder_app_flutter/provider/theme_provider.dart';
 import 'package:profinder_app_flutter/screens/login_screen.dart';
+
 import 'package:profinder_app_flutter/screens/onboarding_screen.dart';
 import 'package:profinder_app_flutter/screens/signIn_screen.dart';
 import 'package:profinder_app_flutter/screens/signUp_screen.dart';
@@ -26,6 +28,26 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final int? counter = prefs.getInt('numTema');
   final int variable = counter != null ? counter : 1;
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  print('User granted permission: ${settings.authorizationStatus}');
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
   return runApp(
     MultiProvider(
         providers: [

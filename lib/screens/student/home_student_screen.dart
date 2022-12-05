@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:profinder_app_flutter/screens/design/background.dart';
 import 'package:provider/provider.dart';
@@ -58,12 +59,28 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
   }
 
   final colorizeTextStyle = TextStyle(
-    fontSize: 50.0,
+    fontSize: 30.0,
+    fontWeight: FontWeight.bold,
+  );
+  final colorizeTextStyle2 = TextStyle(
+    fontSize: 25.0,
     fontWeight: FontWeight.bold,
   );
 
   @override
   Widget build(BuildContext context) {
+    String greeting() {
+      var hour = DateTime.now().hour;
+      if (hour < 12) {
+        return 'Morning';
+      }
+      if (hour < 17) {
+        return 'Afternoon';
+      }
+      return 'Evening';
+    }
+
+    print('Hi user, good${greeting()}');
     //loggedWith = FirebaseAuth.instance.currentUser!.providerData[0].providerId;
     ThemeProvider tema = Provider.of<ThemeProvider>(context);
     ChangingIndexScreen indexScreen = Provider.of<ChangingIndexScreen>(context);
@@ -93,6 +110,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
           print('Cerrando sesión de facebook');
           FacebookAuth.instance.logOut();
           FirebaseAuth.instance.signOut();
+
           break;
         case 'password':
           print('Cerrando sesión con email y password');
@@ -112,7 +130,10 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
           FirebaseAuth.instance.signOut();
           break;
       }
-
+      Fluttertoast.showToast(
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          msg: 'Session closed successfully');
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
 
@@ -213,138 +234,205 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     email = userFirebase.email!;
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text('Bienvenido ${nameUser}'),
-        backgroundColor: Theme.of(context).backgroundColor,
-        actions: [
-          ColorWidgetRow(tema),
-          SizedBox(
-            width: 20,
+      resizeToAvoidBottomInset: false,
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   title: Text('Bienvenido ${nameUser}'),
+      //   backgroundColor: Theme.of(context).backgroundColor,
+      // ),
+      body: Column(
+        children: [
+          Container(
+            height: kheight / 2.43,
+            width: kwidth,
+            child: Stack(
+              children: [
+                Positioned(
+                  child: Container(
+                    color: kPrimaryLightColor,
+                    height: 260,
+                    width: kwidth,
+                    child: Text(''),
+                  ),
+                ),
+                Positioned(
+                  left: 20,
+                  top: kheight * .07,
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      ColorizeAnimatedText(
+                        'Hi, ${nameUser}',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle),
+                        colors: colorizeColors,
+                      ),
+                      ColorizeAnimatedText(
+                        'Hi, ${nameUser}',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle),
+                        colors: colorizeColors,
+                      ),
+                      ColorizeAnimatedText(
+                        'Hi, ${nameUser}',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle),
+                        colors: colorizeColors,
+                      ),
+                    ],
+                    isRepeatingAnimation: true,
+                    onTap: () {},
+                  ),
+                ),
+                Positioned(
+                  left: 40,
+                  top: kheight * .13,
+                  child: AnimatedTextKit(
+                    animatedTexts: [
+                      ColorizeAnimatedText(
+                        'Good ${greeting()}!',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle2),
+                        colors: colorizeColors,
+                      ),
+                      ColorizeAnimatedText(
+                        'Good ${greeting()}!',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle2),
+                        colors: colorizeColors,
+                      ),
+                      ColorizeAnimatedText(
+                        'Good ${greeting()}!',
+                        speed: Duration(milliseconds: 400),
+                        textStyle:
+                            GoogleFonts.poppins(textStyle: colorizeTextStyle2),
+                        colors: colorizeColors,
+                      ),
+                    ],
+                    isRepeatingAnimation: true,
+                    onTap: () {},
+                  ),
+                ),
+                //USER FOTO
+                Positioned(
+                  left: 10,
+                  top: kheight / 4.5,
+                  child: buildNewCircle(
+                      kPrimaryColor,
+                      ClipOval(
+                          child: Material(
+                              color: Colors.transparent, child: futuro))),
+                ),
+                Positioned(
+                  left: kwidth * .70,
+                  top: kheight / 4,
+                  child: ColorWidgetSwitch(tema),
+                ),
+                // child: Image.asset(
+                //     tema.getImage3Theme(),
+                //     width: 100,
+                //     height: 100,
+                //   ),
+                //mover esto a un lugar mejor
+              ],
+            ),
+          ),
+          Expanded(
+            child: GridView(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, childAspectRatio: .8),
+              physics: BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              children: [
+                callContainer(
+                    'Find your class',
+                    "In this section you'll be able to search for your favorite class or subject.",
+                    kPrimaryLightColor, () {
+                  indexScreen.setIndex(0);
+                }, 'search_icon.png'),
+                callContainer(
+                    'User Profile',
+                    "You can see and change some of your user information.",
+                    kPrimaryLightColor, () {
+                  indexScreen.setIndex(1);
+                }, 'user_profile_icon.png'),
+                callContainer(
+                    'Messages',
+                    "Come here to see all the conversations with your teachers",
+                    kPrimaryLightColor, () {
+                  indexScreen.setIndex(3);
+                }, 'messages_icon.png'),
+                callContainer(
+                    'Settings',
+                    "You're able to change the settings of your app here, let's do it.",
+                    kPrimaryLightColor, () {
+                  indexScreen.setIndex(4);
+                }, 'settings_icon.png'),
+                callContainer(
+                    'Log Out',
+                    "If you want to log out and close your session then touch me.",
+                    kPrimaryLightColor, () {
+                  logOut();
+                }, 'logout_icon.png'),
+              ],
+            ),
           ),
         ],
-      ),
-      body: Container(
-        height: kheight,
-        width: kwidth,
-        child: Stack(
-          children: [
-            Positioned(
-              child: Container(
-                color: kPrimaryLightColor,
-                height: 200,
-                width: kwidth,
-                child: Text(''),
-              ),
-            ),
-            Positioned(
-              left: kwidth / 5,
-              top: kheight / 27,
-              child: AnimatedTextKit(
-                animatedTexts: [
-                  ColorizeAnimatedText(
-                    'Profinder',
-                    speed: Duration(milliseconds: 400),
-                    textStyle:
-                        GoogleFonts.poppins(textStyle: colorizeTextStyle),
-                    colors: colorizeColors,
-                  ),
-                  ColorizeAnimatedText(
-                    'Profinder',
-                    speed: Duration(milliseconds: 400),
-                    textStyle:
-                        GoogleFonts.poppins(textStyle: colorizeTextStyle),
-                    colors: colorizeColors,
-                  ),
-                  ColorizeAnimatedText(
-                    'Profinder',
-                    speed: Duration(milliseconds: 400),
-                    textStyle:
-                        GoogleFonts.poppins(textStyle: colorizeTextStyle),
-                    colors: colorizeColors,
-                  ),
-                ],
-                isRepeatingAnimation: true,
-                onTap: () {},
-              ),
-            ),
-            Positioned(
-              left: kwidth / 3.2,
-              top: kheight / 7,
-              child: buildNewCircle(
-                  kPrimaryColor,
-                  ClipOval(
-                      child:
-                          Material(color: Colors.transparent, child: futuro))),
-            ),
-            Positioned(
-              top: kheight / 2.8,
-              child: Container(
-                width: kwidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    callContainer('Look up for a class', kPrimaryLightColor,
-                        () {
-                      indexScreen.setIndex(0);
-                    }, Icons.search),
-                    callContainer('Conversations', kPrimaryLightColor, () {
-                      indexScreen.setIndex(3);
-                    }, Icons.telegram),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: kheight / 1.7,
-              child: Container(
-                width: kwidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    callContainer('Edit user data', kPrimaryLightColor, () {
-                      indexScreen.setIndex(1);
-                    }, Icons.person),
-                    callContainer('Settings', kPrimaryLightColor, () {
-                      indexScreen.setIndex(4);
-                    }, Icons.settings),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
       ),
     );
   }
 
-  Widget callContainer(
-      String title, Color ligthColor, VoidCallback onClicked, IconData icono) {
+  Widget callContainer(String title, String subtitle, Color ligthColor,
+      VoidCallback onClicked, String icono) {
     return GestureDetector(
       onTap: () {
         onClicked();
       },
-      child: Container(
-        padding: EdgeInsets.all(20),
-        height: 170,
-        width: 160,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15), color: ligthColor),
-        child: Column(children: [
-          buildNewCircle(
-              Theme.of(context).primaryColorDark.withOpacity(.7),
-              Icon(
-                icono,
-                size: 60,
-                color: ligthColor,
-              )),
-          SizedBox(
-            height: 10,
-          ),
-          Text('$title',
+      child: Card(
+        //A8A77A
+
+        color: Theme.of(context).primaryColorDark.withOpacity(.7),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            SizedBox(
+              height: 15,
+            ),
+            Image.asset(
+              'assets/icons/$icono',
+              width: 90,
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            //Positioned(bottom: 5, right: 5, child: Icon(icono)),
+            Text(
+              '$title',
+              style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold)),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              '$subtitle',
               textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(textStyle: TextStyle()))
-        ]),
+              style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 12.0,
+              )),
+            ),
+          ]),
+        ),
       ),
     );
   }

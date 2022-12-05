@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -184,7 +185,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
 
         break;
       case 'password':
-        checkimage = 'assets/icons/email_logo.png';
+        checkimage = 'assets/icons/email_color_icon.png';
         print('Es con Email y password el user');
         break;
       case 'google.com':
@@ -370,7 +371,11 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             onClicked: () async {
               userFirebase.providerData[0].providerId == 'password'
                   ? dialogMethod()
-                  : null;
+                  : Fluttertoast.showToast(
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.red,
+                      msg:
+                          'You cannot edit your profile picture while you are logged in with ${userFirebase.providerData[0].providerId}');
             },
           ),
           futuro2,
@@ -385,27 +390,14 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
                     padding:
                         EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
                 onPressed: () async {
-                  if (userFirebase.providerData[0].providerId == 'password') {
-                    final data = await Navigator.pushNamed(
-                        context, '/editProfilePage',
-                        arguments: {
-                          "imageUser": imageUsuario,
-                          "userName": nombreUsuario,
-                          "emailUser": correoUsuario,
-                          "phoneUser": telefonoUsuario,
-                          "description": descripcionUsuario,
-                        });
-                    print(data);
-                    setState(() {
-                      build(context);
-                    });
-                  } else {
-                    Fluttertoast.showToast(
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.red,
-                        msg:
-                            'You cannot edit your profile while you are logged in with ${userFirebase.providerData[0].providerId}');
-                  }
+                  final data = await Navigator.pushNamed(
+                    context,
+                    '/editProfilePage',
+                  );
+                  print(data);
+                  setState(() {
+                    build(context);
+                  });
                 },
                 child: Text(
                   'Edit your profile',
