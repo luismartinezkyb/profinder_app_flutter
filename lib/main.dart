@@ -33,6 +33,8 @@ Future<void> main() async {
   final int variable = counter != null ? counter : 1;
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  String? tokenMessage = await messaging.getToken();
+  print('token from cloud_firestore: $tokenMessage');
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     announcement: false,

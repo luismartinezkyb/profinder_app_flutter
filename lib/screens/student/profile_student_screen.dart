@@ -52,7 +52,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
   //   return file;
   // }
 
-  Future selectImage(ImageSource source) async {
+  Future selectImage(ImageSource source, String urlfinal) async {
     final image = await ImagePicker().pickImage(source: source);
     if (image == null) return;
 
@@ -60,12 +60,12 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
     setState(() {
       this._image = imageTemporary;
     });
-    print('EL PATH DE LA IMAGEN TEMPRAL ES: ${imageTemporary.path}');
-    print('new basename ${path.basename(imageTemporary.path)}');
-    uploadFile();
+    // print('EL PATH DE LA IMAGEN TEMPRAL ES: ${imageTemporary.path}');
+    // print('new basename ${path.basename(imageTemporary.path)}');
+    uploadFile(urlfinal);
   }
 
-  Future uploadFile() async {
+  Future uploadFile(String urlfinal) async {
     if (_image == null) return;
 
     final fileName = path.basename(_image!.path);
@@ -87,12 +87,19 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
           msg: 'Picture upload successfully');
     });
     final urlDownload = await snapshot.ref.getDownloadURL();
-    print('URL DATA $urlDownload');
+    //print('URL DATA $urlDownload');
+    ///DELETE THE PREVIOUS URL
+    ///
 
     //UPDATE URL PICTURE FIRESTORE
     final docUser =
         FirebaseFirestore.instance.collection('users').doc(userFirebase.email);
+
     docUser.update({'picture': urlDownload});
+    //DELETE THE PREVIOUS URL IMAGE
+    final referencia = FirebaseStorage.instance.refFromURL(urlfinal);
+    referencia.delete();
+    //print('DESPUES DE ACTUALIZAR LA FOTO DEBEMOS DE ELIMINARLA ALV $urlfinal');
 
     ///END UPDATE URL PICTURE FIRESTORE
     setState(() {
@@ -107,7 +114,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
 
   late SimpleDialog _sb;
 
-  void dialogMethod() {
+  void dialogMethod(String urlnew) {
     _sb = SimpleDialog(
       title: Text(
         'Elige una nueva Foto',
@@ -128,7 +135,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             ),
           ),
           onPressed: () {
-            selectImage(ImageSource.gallery);
+            selectImage(ImageSource.gallery, urlnew);
             Navigator.pop(context);
           },
         ),
@@ -145,7 +152,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             ),
           ),
           onPressed: () {
-            selectImage(ImageSource.camera);
+            selectImage(ImageSource.camera, urlnew);
             Navigator.pop(context);
           },
         ),
@@ -201,14 +208,6 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
 
         break;
     }
-
-    //final urlAsset = 'assets/ProfilePicture.png';
-    //PARA GUARDAR LA PRIMERA IMAGEN
-    // photo pic = photo(0, urlAsset);
-    // _database!.save(pic);
-    // UserModel newUser = UserModel(0, 'Luis Martinez', 'luismartinez@gmail.com',
-    //     '4612091668', 'https://github.com/luismartinezkyb');
-    // _database2!.save(newUser);
 
     Future<UserModel?> readUser() async {
       final docUser = FirebaseFirestore.instance
@@ -307,9 +306,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
                   : 'http://www.gravatar.com/avatar/?d=mp';
 
           return GestureDetector(
-            onTap: () async {
-              dialogMethod();
-            },
+            onTap: () async {},
             child: CachedNetworkImage(
               imageUrl: imageUsuario,
               fit: BoxFit.cover,
@@ -332,7 +329,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             height: 200,
             child: InkWell(
               onTap: () async {
-                dialogMethod();
+                dialogMethod(imageUsuario);
               },
             ),
           );
@@ -370,7 +367,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
             ),
             onClicked: () async {
               userFirebase.providerData[0].providerId == 'password'
-                  ? dialogMethod()
+                  ? dialogMethod(imageUsuario)
                   : Fluttertoast.showToast(
                       gravity: ToastGravity.BOTTOM,
                       backgroundColor: Colors.red,
@@ -394,7 +391,7 @@ class _ProfileStudentScreenState extends State<ProfileStudentScreen> {
                     context,
                     '/editProfilePage',
                   );
-                  print(data);
+                  //print(data);
                   setState(() {
                     build(context);
                   });

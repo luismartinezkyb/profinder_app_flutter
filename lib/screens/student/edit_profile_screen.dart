@@ -56,6 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? imageString = '';
   final userFirebase = FirebaseAuth.instance.currentUser!;
   String loggedWith = '';
+  var lastPhoto = '';
 
   //File? _image;
   // Future<File> _fileFromImageUrl() async {
@@ -70,20 +71,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   //   return file;
   // }
 
-  Future selectImage(ImageSource source) async {
+  Future selectImage(ImageSource source, String urlFinal) async {
     final image = await ImagePicker().pickImage(source: source);
     if (image == null) return;
 
     final imageTemporary = File(image.path);
     setState(() {
       this._image = imageTemporary;
+      //lastPhoto = path.basename(_image!.path);
     });
     // print('EL PATH DE LA IMAGEN TEMPRAL ES: ${imageTemporary.path}');
     // print('new basename ${path.basename(imageTemporary.path)}');
-    uploadFile();
+
+    uploadFile(urlFinal);
+    //deleteFile(lastpic);
   }
 
-  Future uploadFile() async {
+  Future uploadFile(String urlfinal) async {
     if (_image == null) return;
 
     final fileName = path.basename(_image!.path);
@@ -104,6 +108,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           backgroundColor: Colors.green,
           msg: 'Picture upload successfully');
     });
+
     final urlDownload = await snapshot.ref.getDownloadURL();
     //print('URL DATA $urlDownload');
 
@@ -112,10 +117,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         FirebaseFirestore.instance.collection('users').doc(userFirebase.email);
     docUser.update({'picture': urlDownload});
 
+    final referencia = FirebaseStorage.instance.refFromURL(urlfinal);
+    referencia.delete();
+
     ///END UPDATE URL PICTURE FIRESTORE
     setState(() {
       imageString = urlDownload;
     });
+  }
+
+  Future deleteFile(String filename) async {
+    final destination = 'images/$filename';
+    print('this is the path to the last photo:$destination');
+    // final ref = FirebaseStorage.instance.ref(destination);
+    //   return ref.putFile(file);
   }
 
   @override
@@ -125,7 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   late SimpleDialog _sb;
 
-  void dialogMethod() {
+  void dialogMethod(String urlnew) {
     _sb = SimpleDialog(
       title: Text(
         'Elige una nueva Foto',
@@ -146,7 +161,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           onPressed: () {
-            selectImage(ImageSource.gallery);
+            selectImage(ImageSource.gallery, urlnew);
+
             Navigator.pop(context);
           },
         ),
@@ -163,7 +179,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           onPressed: () {
-            selectImage(ImageSource.camera);
+            selectImage(ImageSource.camera, urlnew);
             Navigator.pop(context);
           },
         ),
@@ -442,9 +458,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   : 'http://www.gravatar.com/avatar/?d=mp';
 
           return GestureDetector(
-            onTap: () async {
-              dialogMethod();
-            },
             child: CachedNetworkImage(
               imageUrl: imageUsuario,
               fit: BoxFit.cover,
@@ -467,7 +480,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             height: 200,
             child: InkWell(
               onTap: () async {
-                dialogMethod();
+                dialogMethod(imageUsuario);
               },
             ),
           );
@@ -510,7 +523,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             onClicked: () async {
               userFirebase.providerData[0].providerId == 'password'
-                  ? dialogMethod()
+                  ? dialogMethod(imageUsuario)
                   : Fluttertoast.showToast(
                       gravity: ToastGravity.BOTTOM,
                       backgroundColor: Colors.red,

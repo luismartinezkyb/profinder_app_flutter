@@ -6,10 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/firebase_api.dart';
+import '../../provider/suscriptions_provider.dart';
 import '../../provider/theme_provider.dart';
 import '../design/switch_mode.dart';
 import 'package:path/path.dart' as path;
@@ -29,6 +31,12 @@ class _SettingsStudentScreenState extends State<SettingsStudentScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeProvider tema = Provider.of<ThemeProvider>(context);
+    SuscriptionsProvider suscribed = Provider.of<SuscriptionsProvider>(context);
+    var kPrimaryColor = Theme.of(context).primaryColorDark;
+    var kPrimaryLightColor = Theme.of(context).primaryColorLight;
+    var kTextColor = Theme.of(context).primaryColorDark;
+    var kwidth = MediaQuery.of(context).size.width;
+    var kheight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,46 +52,88 @@ class _SettingsStudentScreenState extends State<SettingsStudentScreen> {
         ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // _image != null
-            //     ? Image.file(
-            //         _image!,
-            //         fit: BoxFit.cover,
-            //         width: 200,
-            //         height: 200,
-            //       )
-            //     : Image.network(
-            //         imagePath!.length == 0
-            //             ? 'http://www.gravatar.com/avatar/?d=mp'
-            //             : imagePath!,
-            //         fit: BoxFit.cover,
-            //         width: 200,
-            //         height: 200,
-            //       ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     selectImage(ImageSource.gallery);
-            //     //Navigator.pushNamed(context, '/onboardingPage');
-            //   },
-            //   child: Text('select file gallery'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     selectImage(ImageSource.camera);
-            //     //Navigator.pushNamed(context, '/onboardingPage');
-            //   },
-            //   child: Text('select file camera'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     uploadFile();
-            //     //Navigator.pushNamed(context, '/onboardingPage');
-            //   },
-            //   child: Text('Upload the image'),
-            // ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('This is the settings screen',
+                  style: TextStyle(fontSize: 20, fontFamily: 'poppins')),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 130),
+                child: ColorWidgetSwitch(tema),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(29),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        minimumSize: Size(kwidth * .8, 20),
+                        primary: kPrimaryColor.withOpacity(.5),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
+                    onPressed: () {
+                      suscribed.setIndex(!suscribed.getSuscription());
+                    },
+                    child: Text(
+                      suscribed.getSuscription()
+                          ? 'Suscribe to this topics'
+                          : 'Unsuscribe',
+                      style: GoogleFonts.poppins(
+                        textStyle: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // _image != null
+              //     ? Image.file(
+              //         _image!,
+              //         fit: BoxFit.cover,
+              //         width: 200,
+              //         height: 200,
+              //       )
+              //     : Image.network(
+              //         imagePath!.length == 0
+              //             ? 'http://www.gravatar.com/avatar/?d=mp'
+              //             : imagePath!,
+              //         fit: BoxFit.cover,
+              //         width: 200,
+              //         height: 200,
+              //       ),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     selectImage(ImageSource.gallery);
+              //     //Navigator.pushNamed(context, '/onboardingPage');
+              //   },
+              //   child: Text('select file gallery'),
+              // ),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     selectImage(ImageSource.camera);
+              //     //Navigator.pushNamed(context, '/onboardingPage');
+              //   },
+              //   child: Text('select file camera'),
+              // ),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     uploadFile();
+              //     //Navigator.pushNamed(context, '/onboardingPage');
+              //   },
+              //   child: Text('Upload the image'),
+              // ),
+            ],
+          ),
         ),
       ),
     );

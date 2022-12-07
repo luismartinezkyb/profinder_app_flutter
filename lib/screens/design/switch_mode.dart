@@ -24,12 +24,8 @@ ColorWidgetSwitch(ThemeProvider? tema) {
   return Container(
     height: 50,
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Mode',
-          style: GoogleFonts.poppins(textStyle: TextStyle()),
-        ),
         Expanded(
             child: Row(
           children: [

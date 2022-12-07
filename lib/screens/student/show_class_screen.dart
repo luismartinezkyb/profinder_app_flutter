@@ -84,6 +84,7 @@ class _ShowClassInfoScreenState extends State<ShowClassInfoScreen> {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: GestureDetector(
           child: Icon(Icons.arrow_back),
@@ -332,7 +333,8 @@ class _ShowClassInfoScreenState extends State<ShowClassInfoScreen> {
                           ),
                         ],
                       ),
-                      Expanded(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -341,46 +343,42 @@ class _ShowClassInfoScreenState extends State<ShowClassInfoScreen> {
                                       color: Colors.transparent,
                                       child: futuro)),
                               SizedBox(width: 20),
-                              SizedBox(
-                                width: 200,
-                                child: Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text('${snapshot.data!.name}',
-                                          style: GoogleFonts.poppins(
-                                              textStyle: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight:
-                                                      FontWeight.bold))),
-                                      SizedBox(
-                                        height: 10,
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text('${snapshot.data!.name}',
+                                        style: GoogleFonts.poppins(
+                                            textStyle: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold))),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('${snapshot.data!.email}',
+                                        style: GoogleFonts.poppins(
+                                            textStyle: TextStyle(
+                                          fontSize: 15,
+                                        ))),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    RatingBarIndicator(
+                                      rating: double.parse(
+                                              '${snapshot.data!.level}') /
+                                          2,
+                                      itemBuilder: (context, index) => Icon(
+                                        Icons.star_rounded,
+                                        color: Colors.amber,
                                       ),
-                                      Text('${snapshot.data!.email}',
-                                          style: GoogleFonts.poppins(
-                                              textStyle: TextStyle(
-                                            fontSize: 15,
-                                          ))),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      RatingBarIndicator(
-                                        rating: double.parse(
-                                                '${snapshot.data!.level}') /
-                                            2,
-                                        itemBuilder: (context, index) => Icon(
-                                          Icons.star_rounded,
-                                          color: Colors.amber,
-                                        ),
-                                        itemCount: 5,
-                                        itemSize: 25.0,
-                                        direction: Axis.horizontal,
-                                      ),
-                                      Text('${snapshot.data!.level}',
-                                          style: GoogleFonts.poppins()),
-                                    ],
-                                  ),
+                                      itemCount: 5,
+                                      itemSize: 25.0,
+                                      direction: Axis.horizontal,
+                                    ),
+                                    Text('${snapshot.data!.level}',
+                                        style: GoogleFonts.poppins()),
+                                  ],
                                 ),
-                              )
+                              ),
                             ]),
                       ),
                       SizedBox(
@@ -428,35 +426,6 @@ class _ShowClassInfoScreenState extends State<ShowClassInfoScreen> {
                             },
                             child: Text(
                               'Send Message',
-                              style: GoogleFonts.poppins(
-                                textStyle: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(29),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                minimumSize: Size(kwidth * .8, 20),
-                                primary: kPrimaryColor.withOpacity(.5),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20)),
-                            onPressed: () {
-                              suscribed.setIndex(!suscribed.getSuscription());
-                            },
-                            child: Text(
-                              suscribed.getSuscription()
-                                  ? 'Suscribe to this topics'
-                                  : 'Unsuscribe',
                               style: GoogleFonts.poppins(
                                 textStyle: TextStyle(
                                   fontSize: 20,

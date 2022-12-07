@@ -149,7 +149,7 @@ class _SearchStudentScreenState extends State<SearchStudentScreen> {
                                     Expanded(
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(
-                                            vertical: 15, horizontal: 30),
+                                            vertical: 10, horizontal: 30),
                                         child: Column(
                                           children: [
                                             Spacer(),
@@ -615,8 +615,41 @@ class _SearchStudentScreenState extends State<SearchStudentScreen> {
                                                     primary: kPrimaryColor,
                                                     minimumSize: Size(90, 40),
                                                   ),
-                                                  onPressed: () {
-                                                    print('view details');
+                                                  onPressed: () async {
+                                                    final data = await Navigator
+                                                        .pushNamed(context,
+                                                            '/showClassInfo',
+                                                            arguments: {
+                                                          "className":
+                                                              classes[index]
+                                                                  .name,
+                                                          "classDescription":
+                                                              classes[index]
+                                                                  .description,
+                                                          "classDuration":
+                                                              classes[index]
+                                                                  .duration,
+                                                          "classDate":
+                                                              classes[index]
+                                                                  .date,
+                                                          "classModality":
+                                                              classes[index]
+                                                                  .modality,
+                                                          "classTags":
+                                                              classes[index]
+                                                                  .tags,
+                                                          "tutorPicture":
+                                                              classes[index]
+                                                                  .picture_tutor,
+                                                          "tutorReference":
+                                                              classes[index]
+                                                                  .tutor!
+                                                                  .path,
+                                                        });
+                                                    print(data);
+                                                    setState(() {
+                                                      build(context);
+                                                    });
                                                   },
                                                   child: Text(
                                                     'Info',
